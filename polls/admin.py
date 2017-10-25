@@ -4,8 +4,8 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 
-
 from .models import Question, Choice
+from django_admin_listfilter_dropdown.filters import DropdownFilter, RelatedDropdownFilter
 
 def download_csv(modeladmin, request, queryset):
     if not request.user.is_staff:
@@ -39,13 +39,13 @@ class QuestionAdmin(admin.ModelAdmin):
     ]
     inlines = [ChoiceInline]
     list_display = ('question_text', 'pub_date', 'was_published_recently')
-    list_filter = [('question_text')]
+    list_filter = (
+        ('question_text', DropdownFilter),
+        # for related fields
+        #('id', RelatedDropdownFilter)
+    )
     search_fields = ['question_text']
     actions = [download_csv]
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "sort_id":
-            kwargs["queryset"] = Tags.objects.filter(user=request.user)
-        return super(BlogArticleAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class ChoiceAdmin(admin.ModelAdmin):
     fields = ('choice_text', 'votes')
