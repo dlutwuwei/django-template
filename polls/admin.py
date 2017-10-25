@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 
-from .models import Question, Choice
+from .models import Question, Choice, Profit, RevenueForcast, Collection, EnlistForcast, CostForcast, CostAdjust, OperatingCost
+
 from django_admin_listfilter_dropdown.filters import DropdownFilter, RelatedDropdownFilter
 
 def download_csv(modeladmin, request, queryset):
@@ -52,7 +53,28 @@ class ChoiceAdmin(admin.ModelAdmin):
     list_display = ('choice_text', 'votes')
     actions = [download_csv]
 
+class ProfitAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('主营业务收入', {'fields': ['gongwuyuan', 'shiyedanwei', 'teacher']}),
+        ('主营业务成本', {'fields': ['changdifei1', 'changdifei2', 'changdifei3']}),
+        (None, {'fields': ['month']}),
+        (None, {'fields': ['province']})
+    ]
+    list_display = ('month', 'province', 'gongwuyuan', 'shiyedanwei', 'teacher', 'changdifei1', 'changdifei2', 'changdifei3')
+    list_filter = (
+        ('month', DropdownFilter),
+        # for related fields
+        #('id', RelatedDropdownFilter)
+    )
+    actions = [download_csv]
 
-admin.site.register(Question, QuestionAdmin)
-admin.site.register(Choice, ChoiceAdmin)
-admin.AdminSite.site_header = 'huatu'
+
+admin.site.register(Profit, ProfitAdmin)
+admin.site.register(RevenueForcast)
+admin.site.register(Collection)
+admin.site.register(EnlistForcast)
+admin.site.register(CostForcast)
+admin.site.register(CostAdjust)
+admin.site.register(OperatingCost)
+
+admin.AdminSite.site_header = '华图教育2018预算'
