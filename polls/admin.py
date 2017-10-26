@@ -6,8 +6,6 @@ from django.core.exceptions import PermissionDenied
 
 from .models import Question, Choice, Profit, RevenueForcast, Collection, EnlistForcast, CostForcast, CostAdjust, OperatingCost
 
-from django_admin_listfilter_dropdown.filters import DropdownFilter, RelatedDropdownFilter
-
 def download_csv(modeladmin, request, queryset):
     if not request.user.is_staff:
         raise PermissionDenied
@@ -41,7 +39,7 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
     list_display = ('question_text', 'pub_date', 'was_published_recently')
     list_filter = (
-        ('question_text', DropdownFilter),
+        ('question_text'),
         # for related fields
         #('id', RelatedDropdownFilter)
     )
@@ -62,7 +60,7 @@ class ProfitAdmin(admin.ModelAdmin):
     ]
     list_display = ('month', 'province', 'gongwuyuan', 'shiyedanwei', 'teacher', 'changdifei1', 'changdifei2', 'changdifei3')
     list_filter = (
-        ('month', DropdownFilter),
+        ('month'),
         # for related fields
         #('id', RelatedDropdownFilter)
     )
