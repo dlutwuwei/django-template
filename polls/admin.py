@@ -3,8 +3,11 @@ import unicodecsv as csv
 from django.contrib import admin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
-from .models import Question, Choice, Profit, RevenueForcast, Collection, EnlistForcast, CostForcast, CostAdjust, OperatingCost
+from .models import Question, Choice, Profit, RevenueForcast, Collection, EnlistForcast, CostForcast, CostAdjust, OperatingCost, Employee
+from .forms import EmployeeForm
 
 def download_csv(modeladmin, request, queryset):
     if not request.user.is_staff:
@@ -65,7 +68,21 @@ class ProfitAdmin(admin.ModelAdmin):
         #('id', RelatedDropdownFilter)
     )
     actions = [download_csv]
+    def get_queryset(self, request):
+        qs = super(ProfitAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        # 此处user为当前model的related object的related object， 正常的外键只要filter(user=request.user)
+        return qs.filter(province=request.user)
 
+class EmployeeInline(admin.TabularInline):
+    model = Employee
+    form  = EmployeeForm
+    can_delete = False
+
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    inlines = (EmployeeInline,)
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(RevenueForcast)
@@ -74,5 +91,8 @@ admin.site.register(EnlistForcast)
 admin.site.register(CostForcast)
 admin.site.register(CostAdjust)
 admin.site.register(OperatingCost)
+admin.site.register(Question, QuestionAdmin)
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 
 admin.AdminSite.site_header = '华图教育2018预算'

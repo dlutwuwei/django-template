@@ -4,6 +4,7 @@ import datetime
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Create your models here.
 @python_2_unicode_compatible
@@ -105,3 +106,15 @@ class OperatingCost(models.Model):
     class Meta:
       verbose_name = "运营成本"
       verbose_name_plural = "运营成本报表"
+
+from django.contrib.auth.models import User
+
+class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.CharField(max_length=100)
+    def __str__(self):
+      return self.department
+    class Meta:
+      verbose_name = "部门"
+      verbose_name_plural = "雇员信息"
+
