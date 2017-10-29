@@ -60,7 +60,7 @@ class EnlistForcast(models.Model):
     ExamDetailType = models.CharField('考试明细项目',max_length = 20, default=0)
     ExamType = models.CharField('考试类型',max_length = 20, default=0)
     ClassType = models.CharField('班型',max_length = 20, default=0)
-    ExamTime = models.DateField('预计招考时间', auto_now=True)
+    ExamTime = models.DateField('预计招考时间')
     StudentEnrollment = models.IntegerField('预计学生消费', default=0)
     StudentConsumption = models.IntegerField('预计学费收入', default=0)
     class Meta:

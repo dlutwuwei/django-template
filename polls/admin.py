@@ -93,11 +93,12 @@ class EnlistForm(forms.ModelForm):
     # company为外键，是多对一的关系
     company = forms.ModelChoiceField(
         queryset = Company.objects.all(),
-        widget = forms.HiddenInput()
+        widget = forms.HiddenInput(),
     )
 
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
+    actions = [download_csv]
     list_filter =('company','company__school')
     list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
     def get_changeform_initial_data(self, request):
