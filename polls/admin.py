@@ -5,6 +5,9 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django import forms
+
+from company.models import Employee, Company
 
 from .models import Question, Choice, Profit, Revenue, Collection, EnlistForcast, CostAdjust
 
@@ -74,13 +77,23 @@ class ProfitAdmin(admin.ModelAdmin):
         # 此处user为当前model的related object的related object， 正常的外键只要filter(user=request.user)
         return qs.filter(province=request.user)
 
+class EmployeeInline(admin.StackedInline):
+    model = Employee
+    can_delete = False
+    verbose_name = 'user'
+    verbose_name_plural = '公司信息'
+
+class EnlistForm(forms.ModelForm):
+    company = forms.CharField(max_length=200, label='分公司', disabled=True)
+
 class EnlistForcastAdmin(admin.ModelAdmin):
-    readonly_fields = ('company',)
-    list_display = ('company',)
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(EnlistForcastAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields['company'].initial = request.user.username
-        return form
+    form = EnlistForm
+    list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
+    def get_changeform_initial_data(self, request):
+        company = Employee.objects.get(user__id = request.user.id)
+        if(company):
+            return {'company': company.company.company_name}
+
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)

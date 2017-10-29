@@ -72,7 +72,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-
+PWD = os.path.dirname(os.path.realpath(__file__))
+print os.path.join(PWD, 'my.cnf')
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
@@ -80,7 +81,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': '/Users/wuwei/myenv/django-template/mysite/my.cnf',
+            'read_default_file': os.path.join(PWD, 'my.cnf'),
         },
     }
 }
