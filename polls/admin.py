@@ -86,19 +86,22 @@ class EmployeeInline(admin.StackedInline):
 class EnlistForm(forms.ModelForm):
     company_show = forms.CharField(
         max_length=200,
-        label='分公司'
+        label='分公司',
+        disabled=True
     )
-    # company = forms.CharField(
-    #     widget = forms.HiddenInput()
-    # )
+    # company为外键，是多对一的关系
+    company = forms.ModelChoiceField(
+        queryset = Company.objects.all(),
+        widget = forms.HiddenInput()
+    )
 
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
     list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
     def get_changeform_initial_data(self, request):
-        company = Employee.objects.get(user__id = request.user.id)
-        if(company):
-            return {'company': company.id, 'company_show': company.company.company_name}
+        employee = Employee.objects.get(user__id = request.user.id)
+        if(employee):
+            return {'company': employee.company.id, 'company_show': employee.company.company_name}
     def queryset(self, request):
         qs = super(EnlistForcastAdmin, self).queryset(request)
         if request.user.is_superuser:
