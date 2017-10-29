@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'company.apps.CompanyConfig',
     'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,7 +80,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': '/Users/wuwei/code/django/mysite/mysite/my.cnf',
+            'read_default_file': '/Users/wuwei/myenv/django-template/mysite/my.cnf',
         },
     }
 }

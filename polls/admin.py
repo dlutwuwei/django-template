@@ -6,8 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import Question, Choice, Profit, RevenueForcast, Collection, EnlistForcast, CostForcast, CostAdjust, OperatingCost, Employee
-from .forms import EmployeeForm
+from .models import Question, Choice, Profit, Revenue, Collection, EnlistForcast, CostAdjust
 
 def download_csv(modeladmin, request, queryset):
     if not request.user.is_staff:
@@ -75,24 +74,17 @@ class ProfitAdmin(admin.ModelAdmin):
         # 此处user为当前model的related object的related object， 正常的外键只要filter(user=request.user)
         return qs.filter(province=request.user)
 
-class EmployeeInline(admin.TabularInline):
-    model = Employee
-    form  = EmployeeForm
-    can_delete = False
-
-# Define a new User admin
-class UserAdmin(BaseUserAdmin):
-    inlines = (EmployeeInline,)
+class EnlistForcastAdmin(admin.ModelAdmin):
+    readonly_fields = ('company',)
+    list_display = ('company',)
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(EnlistForcastAdmin, self).get_form(request, obj=obj, **kwargs)
+        form.base_fields['company'].initial = request.user.username
+        return form
 
 admin.site.register(Profit, ProfitAdmin)
-admin.site.register(RevenueForcast)
 admin.site.register(Collection)
-admin.site.register(EnlistForcast)
-admin.site.register(CostForcast)
+admin.site.register(EnlistForcast, EnlistForcastAdmin)
 admin.site.register(CostAdjust)
-admin.site.register(OperatingCost)
 admin.site.register(Question, QuestionAdmin)
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
 
-admin.AdminSite.site_header = '华图教育2018预算'
