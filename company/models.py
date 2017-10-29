@@ -21,7 +21,7 @@ class Company(models.Model):
         unique=False
     )
     company_name = models.CharField('分公司名称', max_length=200)
-    company_code = models.CharField('分公司代码', max_length=6)
+    company_code = models.CharField('分公司代码', max_length=6, unique=True)
     def __str__(self):
       return self.company_name
     class Meta:

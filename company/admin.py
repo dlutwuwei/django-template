@@ -21,8 +21,15 @@ class UserAdmin(BaseUserAdmin):
         return instance.employee.company
     get_department.short_description = '分公司'
 
+class CompanyInline(admin.StackedInline):
+    model = Company
+    extra = 1
+    verbose_name = '分公司'
+    verbose_name_plural = '分公司信息'
+
 
 class SchoolAdmin(admin.ModelAdmin):
+    inlines = (CompanyInline,)
     list_display = ('school_name', 'school_master')
 
 class CompanyAdmin(admin.ModelAdmin):
