@@ -55,7 +55,7 @@ class Profit(models.Model):
 
 # 考情及报名收入预测
 class EnlistForcast(models.Model):
-    company = models.OneToOneField(Company, verbose_name="分公司")
+    company = models.ForeignKey(Company, verbose_name="分公司")
     ExamItem = models.CharField('考试项目',max_length = 20, default=0)
     ExamDetailType = models.CharField('考试明细项目',max_length = 20, default=0)
     ExamType = models.CharField('考试类型',max_length = 20, default=0)

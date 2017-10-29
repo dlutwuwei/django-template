@@ -84,7 +84,13 @@ class EmployeeInline(admin.StackedInline):
     verbose_name_plural = '公司信息'
 
 class EnlistForm(forms.ModelForm):
-    company = forms.CharField(max_length=200, label='分公司', disabled=True)
+    company_show = forms.CharField(
+        max_length=200,
+        label='分公司'
+    )
+    # company = forms.CharField(
+    #     widget = forms.HiddenInput()
+    # )
 
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
@@ -92,8 +98,14 @@ class EnlistForcastAdmin(admin.ModelAdmin):
     def get_changeform_initial_data(self, request):
         company = Employee.objects.get(user__id = request.user.id)
         if(company):
-            return {'company': company.company.company_name}
-
+            return {'company': company.id, 'company_show': company.company.company_name}
+    def queryset(self, request):
+        qs = super(EnlistForcastAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs
+        else:
+            company = Employee.objects.get(user__id = request.user.id)
+            return qs.filter(company__id=company.id)
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)
