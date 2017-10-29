@@ -87,6 +87,7 @@ class EnlistForm(forms.ModelForm):
     company_show = forms.CharField(
         max_length=200,
         label='分公司',
+        required=False,
         disabled=True
     )
     # company为外键，是多对一的关系
@@ -97,18 +98,19 @@ class EnlistForm(forms.ModelForm):
 
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
+    list_filter =('company','company__school')
     list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
     def get_changeform_initial_data(self, request):
         employee = Employee.objects.get(user__id = request.user.id)
         if(employee):
             return {'company': employee.company.id, 'company_show': employee.company.company_name}
-    def queryset(self, request):
-        qs = super(EnlistForcastAdmin, self).queryset(request)
+    def get_search_results(self, request, queryset, search_term):
+        qs, x = super(EnlistForcastAdmin, self).get_search_results(request, queryset, search_term)
         if request.user.is_superuser:
-            return qs
+            return qs, x
         else:
-            company = Employee.objects.get(user__id = request.user.id)
-            return qs.filter(company__id=company.id)
+            employee = Employee.objects.get(user__id = request.user.id)
+            return qs.filter(company__id=employee.company_id),x
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)
