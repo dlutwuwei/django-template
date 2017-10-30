@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.contrib.admin.models import LogEntry
 from django import forms
 
 from company.models import Employee, Company
@@ -130,4 +131,4 @@ admin.site.register(Collection)
 admin.site.register(EnlistForcast, EnlistForcastAdmin)
 admin.site.register(CostAdjust)
 admin.site.register(Question, QuestionAdmin)
-
+admin.site.register(LogEntry)
