@@ -11,6 +11,9 @@ from company.models import Employee, Company
 
 from .models import Question, Choice, Profit, Revenue, Collection, EnlistForcast, CostAdjust
 
+from django.utils.dates import MONTHS
+month_items = MONTHS.items()
+
 def download_csv(modeladmin, request, queryset):
     if not request.user.is_staff:
         raise PermissionDenied
@@ -99,19 +102,21 @@ class EnlistForm(forms.ModelForm):
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
     actions = [download_csv]
-#    list_filter =('company','company__school')
-    list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
+    list_filter =('company','company__school', 'month')
+    list_display = ('get_month', 'company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
     def get_changeform_initial_data(self, request):
-        employee = User.objects.get(user__id = request.user.id)
-        if(employee):
-            return {'company': employee.company.id, 'company_show': employee.company.company_name}
+        company = Company.objects.get(user__id=request.user.id)
+        if(company):
+            return {'company': company.id, 'company_show': company.company_name}
     def get_search_results(self, request, queryset, search_term):
         qs, x = super(EnlistForcastAdmin, self).get_search_results(request, queryset, search_term)
         if request.user.is_superuser:
             return qs, x
         else:
-            employee = User.objects.get(user__id = request.user.id)
-            return qs.filter(company__id=employee.company_id), x
+            company = Company.objects.get(user__id=request.user.id)
+            return qs.filter(company__id=company.id), x
+    def get_month(self, instance):
+        return month_items[int(instance.month)-1][1]
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)

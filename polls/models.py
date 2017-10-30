@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from company.models import Company
 
-#class BaseModel(models.Model):
+from django.utils.dates import MONTHS
 
 # Create your models here.
 class Question(models.Model):
@@ -56,13 +56,14 @@ class Profit(models.Model):
 # 考情及报名收入预测
 class EnlistForcast(models.Model):
     company = models.ForeignKey(Company, verbose_name="分公司")
-    ExamItem = models.CharField('考试项目',max_length = 20, default=0)
-    ExamDetailType = models.CharField('考试明细项目',max_length = 20, default=0)
-    ExamType = models.CharField('考试类型',max_length = 20, default=0)
-    ClassType = models.CharField('班型',max_length = 20, default=0)
+    ExamItem = models.CharField('考试项目',max_length = 20, default='')
+    ExamDetailType = models.CharField('考试明细项目',max_length = 20, default='')
+    ExamType = models.CharField('考试类型',max_length = 20, default='')
+    ClassType = models.CharField('班型',max_length = 20, default='')
     ExamTime = models.DateField('预计招考时间')
     StudentEnrollment = models.IntegerField('预计学生消费', default=0)
     StudentConsumption = models.IntegerField('预计学费收入', default=0)
+    month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
