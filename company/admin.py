@@ -38,4 +38,4 @@ class CompanyAdmin(admin.ModelAdmin):
 
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Company, CompanyAdmin)
-admin.AdminSite.site_header = '华图教育2018预算'
+admin.AdminSite.site_header = 'Django Test'
