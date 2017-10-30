@@ -103,25 +103,25 @@ class EnlistForcastAdmin(admin.ModelAdmin):
     list_filter =('company','company__school', 'year')
     list_display = ('company', 'examItem', 'examDetailItem', 'examType', 'classType',
         'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
+    # 初始化填表信息
     def get_changeform_initial_data(self, request):
         companies = Company.objects.filter(user__id=request.user.id)
         if(companies):
             return {'company': companies[0].id}
-    # 修改筛选后的列表
+    # 过滤筛选后的列表
     def get_search_results(self, request, queryset, search_term):
         qs, x = super(EnlistForcastAdmin, self).get_search_results(request, queryset, search_term)
         if request.user.is_superuser:
             return qs, x
         else:
             companies = Company.objects.filter(user=request.user)
-            print qs
             q = qs.filter(company__id = companies[0].id)
-            print q, 'xxxx'
             for index, co in enumerate(companies):
                 if(index == 0):
                     continue
                 q = q | qs.filter(company__id = co.id)
             return q, x
+    # 过滤下拉条菜单
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         print db_field.name
         if db_field.name == 'company':
