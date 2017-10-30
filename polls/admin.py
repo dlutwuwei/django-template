@@ -7,6 +7,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.admin.models import LogEntry
 from django import forms
+from itertools import chain
 
 from company.models import Employee, Company
 
@@ -88,43 +89,50 @@ class EmployeeInline(admin.StackedInline):
     verbose_name_plural = '公司信息'
 
 class EnlistForm(forms.ModelForm):
-    company_show = forms.CharField(
-        max_length=200,
-        label='分公司',
-        required=False,
-        disabled=True
-    )
+    pass
     # company为外键，是多对一的关系, 隐藏字段，不可修改
-    company = forms.ModelChoiceField(
-        queryset = Company.objects.all(),
-        widget = forms.HiddenInput(),
-    )
+    # company = forms.ModelChoiceField(
+    #     queryset = Company.objects.all(),
+    #     widget = forms.HiddenInput(),
+    # )
 
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
     actions = [download_csv]
-    list_filter =('company','company__school', 'month')
-    list_display = ('get_month', 'company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
+    readonly_fields=('year',)
+    list_filter =('company','company__school', 'year')
+    list_display = ('company', 'examItem', 'examDetailItem', 'examType', 'classType',
+        'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
     def get_changeform_initial_data(self, request):
-        company = Company.objects.get(user__id=request.user.id)
-        if(company):
-            return {'company': company.id, 'company_show': company.company_name}
+        companies = Company.objects.filter(user__id=request.user.id)
+        if(companies):
+            return {'company': companies[0].id}
+    # 修改筛选后的列表
     def get_search_results(self, request, queryset, search_term):
         qs, x = super(EnlistForcastAdmin, self).get_search_results(request, queryset, search_term)
         if request.user.is_superuser:
             return qs, x
         else:
-            company = Company.objects.get(user__id=request.user.id)
-            return qs.filter(company__id=company.id), x
-    def formfield_for_choice_field(self, db_field, request=None, **kwargs):
+            companies = Company.objects.filter(user=request.user)
+            print qs
+            q = qs.filter(company__id = companies[0].id)
+            print q, 'xxxx'
+            for index, co in enumerate(companies):
+                if(index == 0):
+                    continue
+                q = q | qs.filter(company__id = co.id)
+            return q, x
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         print db_field.name
-        if request.user.is_superuser:
-            pass
-        elif db_field.name == 'official':
-            kwargs['queryset'] = Official.objects.filter(user=request.user)
-        return super(EnlistForcastAdmin, self).formfield_for_choice_field(db_field, request=None, **kwargs)
-    def get_month(self, instance):
-        return month_items[int(instance.month)-1][1]
+        if db_field.name == 'company':
+            kwargs['queryset'] = Company.objects.filter(user=request.user)
+        return super(EnlistForcastAdmin, self).formfield_for_foreignkey(db_field, request=None, **kwargs)
+    # def get_month(self, instance):
+    #     return month_items[int(instance.month)-1][1]
+    # get_month.short_description = '月份'
+    def get_revenue(self, instance):
+        return instance.studentConsumption * instance.studentCount
+    get_revenue.short_description = '预计学费收入(元)'
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)

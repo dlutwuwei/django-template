@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from company.models import Company
+from company.models import Company, ExamDetailItem, ExamItem, ExamType, ClassType
 
 from django.utils.dates import MONTHS
 
@@ -52,18 +52,18 @@ class Profit(models.Model):
       verbose_name_plural = "利润报表"
 
 
-
 # 考情及报名收入预测
 class EnlistForcast(models.Model):
+    # month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
+    year = models.IntegerField('年份', default=2018)
     company = models.ForeignKey(Company, verbose_name="分公司")
-    ExamItem = models.CharField('考试项目',max_length = 20, default='')
-    ExamDetailType = models.CharField('考试明细项目',max_length = 20, default='')
-    ExamType = models.CharField('考试类型',max_length = 20, default='')
-    ClassType = models.CharField('班型',max_length = 20, default='')
-    ExamTime = models.DateField('预计招考时间')
-    StudentEnrollment = models.IntegerField('预计学生消费', default=0)
-    StudentConsumption = models.IntegerField('预计学费收入', default=0)
-    month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
+    examItem = models.ForeignKey(ExamItem, verbose_name ='考试项目', max_length = 20, default=1)
+    examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
+    examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
+    classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
+    examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)
+    studentConsumption = models.IntegerField('预计学生消费', default=0)
+    studentCount = models.IntegerField('预计招收人数', default=0)
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"

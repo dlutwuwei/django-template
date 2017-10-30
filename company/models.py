@@ -45,3 +45,42 @@ class Employee(models.Model):
     )
     def __str__(self):
       return self.user.username
+
+
+
+class ExamItem(models.Model):
+    item_name = models.CharField('考试项目', max_length=100)
+    class Meta:
+      verbose_name='考试项目'
+      verbose_name_plural = '考试项目设置'
+    def __str__(self):
+      return self.item_name
+
+class ExamDetailItem(models.Model):
+    item = models.ForeignKey(
+      ExamItem,
+      on_delete=models.CASCADE,
+      verbose_name="所属项目",
+    )
+    detail_name = models.CharField('考试明细项目', max_length=100)
+    class Meta:
+      verbose_name='考试明细项目'
+      verbose_name_plural = '考试明细项目设置'
+    def __str__(self):
+      return self.detail_name
+
+class ExamType(models.Model):
+    type_name = models.CharField('考试类型', max_length=100)
+    class Meta:
+      verbose_name='考试类型'
+      verbose_name_plural = '考试类型设置'
+    def __str__(self):
+      return self.type_name
+
+class ClassType(models.Model):
+    class_name = models.CharField('班型', max_length=100)
+    class Meta:
+      verbose_name='班型'
+      verbose_name_plural = '班型设置'
+    def __str__(self):
+      return self.class_name
