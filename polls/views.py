@@ -40,3 +40,14 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+def city_list(request):
+    city_list = []
+    province = request.GET['provinceID']
+    citys = City.objects.filter(provinceID = province)
+    for city in citys:
+        c = {}
+        c['label'] = city.cityName
+        c['text'] = city.id
+        city_list.append(c)
+    return HttpResponse(simplejson.dumps(city_list), mimetype='application/json')
