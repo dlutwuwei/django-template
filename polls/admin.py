@@ -99,10 +99,10 @@ class EnlistForm(forms.ModelForm):
 class EnlistForcastAdmin(admin.ModelAdmin):
     form = EnlistForm
     actions = [download_csv]
-    list_filter =('company','company__school')
+#    list_filter =('company','company__school')
     list_display = ('company', 'ExamItem', 'ExamDetailType', 'ExamType', 'ClassType', 'ExamTime', 'StudentEnrollment', 'StudentConsumption')
     def get_changeform_initial_data(self, request):
-        employee = Employee.objects.get(user__id = request.user.id)
+        employee = User.objects.get(user__id = request.user.id)
         if(employee):
             return {'company': employee.company.id, 'company_show': employee.company.company_name}
     def get_search_results(self, request, queryset, search_term):
@@ -110,8 +110,8 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return qs, x
         else:
-            employee = Employee.objects.get(user__id = request.user.id)
-            return qs.filter(company__id=employee.company_id),x
+            employee = User.objects.get(user__id = request.user.id)
+            return qs.filter(company__id=employee.company_id), x
 
 admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)
