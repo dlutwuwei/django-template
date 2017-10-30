@@ -93,7 +93,7 @@ class EnlistForm(forms.ModelForm):
         required=False,
         disabled=True
     )
-    # company为外键，是多对一的关系
+    # company为外键，是多对一的关系, 隐藏字段，不可修改
     company = forms.ModelChoiceField(
         queryset = Company.objects.all(),
         widget = forms.HiddenInput(),
@@ -115,6 +115,13 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         else:
             company = Company.objects.get(user__id=request.user.id)
             return qs.filter(company__id=company.id), x
+    def formfield_for_choice_field(self, db_field, request=None, **kwargs):
+        print db_field.name
+        if request.user.is_superuser:
+            pass
+        elif db_field.name == 'official':
+            kwargs['queryset'] = Official.objects.filter(user=request.user)
+        return super(EnlistForcastAdmin, self).formfield_for_choice_field(db_field, request=None, **kwargs)
     def get_month(self, instance):
         return month_items[int(instance.month)-1][1]
 
