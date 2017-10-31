@@ -66,7 +66,9 @@ class EnlistForcast(models.Model):
       auto_choose=True,
       sort=True,
       on_delete=models.CASCADE,
-      verbose_name='所属分部'
+      verbose_name='所属分部',
+      null=True,
+      blank=True
     )
     examItem = models.ForeignKey(ExamItem, verbose_name ='考试项目', max_length = 20, default=1)
     # examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
