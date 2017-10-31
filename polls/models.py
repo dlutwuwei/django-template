@@ -86,7 +86,7 @@ class EnlistForcast(models.Model):
     examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)
     studentConsumption = models.IntegerField('预计学生消费', default=0)
     studentCount = models.IntegerField('预计招收人数', default=0)
-    studyDuration = models.IntegerField('预计总学学时', default=0)
+    studyDuration = models.IntegerField('预计总学时', default=0)
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
