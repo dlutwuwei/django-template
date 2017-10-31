@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, ClassType
+from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, ClassType, ProductType
 
 from django.utils.dates import MONTHS
 from smart_selects.db_fields import ChainedForeignKey
@@ -66,11 +66,10 @@ class EnlistForcast(models.Model):
       auto_choose=True,
       sort=True,
       on_delete=models.CASCADE,
-      verbose_name='所属分部',
-      null=True,
-      blank=True
+      verbose_name='所属分部'
     )
     examItem = models.ForeignKey(ExamItem, verbose_name ='考试项目', max_length = 20, default=1)
+    productType = models.ForeignKey(ProductType, verbose_name='产品类型', max_length = 20, default=1)
     # examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
     examDetailItem = ChainedForeignKey(
       ExamDetailItem,
@@ -85,17 +84,16 @@ class EnlistForcast(models.Model):
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
     examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)
-    studentConsumption = models.FloatField('预计学生消费', default=0)
+    studentConsumption = models.IntegerField('预计学生消费', default=0)
     studentCount = models.IntegerField('预计招收人数', default=0)
+    studyDuration = models.IntegerField('预计总学学时', default=0)
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
-      unique_together = ('year','company','branch', 'examItem', 'examDetailItem','examType', 'classType', 'examTime')
+      unique_together = ('year','company','branch', 'examItem', 'examDetailItem','examType', 'classType', 'examTime', 'productType')
     def company_show(self):
       return self.company.company_name
     company_show.short_description = '分公司'
-
-
 
 
 # 主营业务成本

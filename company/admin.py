@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Company, School, Branch, ExamDetailItem, ExamItem, ExamType, ClassType
+from .models import Company, School, Branch, ExamDetailItem, ExamItem, ExamType, ClassType, ProductType, IncomeConversion
 
 class CompanyInline(admin.StackedInline):
     model = Company
@@ -50,6 +50,14 @@ class ClassTypeAdmin(admin.ModelAdmin):
 class ExamTypeAdmin(admin.ModelAdmin):
     list_display = ('type_name',)
 
+@admin.register(IncomeConversion)
+class IncomeConversionAdmin(admin.ModelAdmin):
+    readonly_fields = ('year',)
+    list_filter =('examDetailItem', 'examType', 'classType', 'examItem', 'company', 'year')
+
+    list_display = ('company', 'examItem', 'examDetailItem', 'examType', 'classType', 'ratio')
+
+
 admin.site.register(ExamItem, ExamItemAdmin)
 admin.site.register(ClassType, ClassTypeAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
@@ -57,5 +65,5 @@ admin.site.register(ExamDetailItem, ExamDetailItemAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Branch, BranchAdmin)
-
+admin.site.register(ProductType)
 admin.AdminSite.site_header = 'Django Test'

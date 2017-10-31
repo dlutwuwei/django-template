@@ -92,6 +92,7 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         return instance.studentConsumption * instance.studentCount
     get_revenue.short_description = '预计学费收入(元)'
 
+
 admin.site.register(Collection)
 admin.site.register(CostAdjust)
 admin.site.register(LogEntry)

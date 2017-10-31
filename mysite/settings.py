@@ -125,3 +125,5 @@ USE_TZ = True
 STATIC_ROOT = "./mysite/static/"
 
 STATIC_URL = '/static/'
+
+JQUERY_URL = '/static/admin/js/vendor/jquery/jquery.js'
