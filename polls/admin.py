@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib.admin.models import LogEntry
 from django import forms
-from ajax_select.admin import AjaxSelectAdmin
 
 from company.models import Company
 
