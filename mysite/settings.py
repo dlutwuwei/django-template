@@ -74,7 +74,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 PWD = os.path.dirname(os.path.realpath(__file__))
-print os.path.join(PWD, 'my.cnf')
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
