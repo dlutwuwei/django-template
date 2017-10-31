@@ -90,6 +90,7 @@ class EnlistForcast(models.Model):
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
+      unique_together = ('year','company','branch', 'examItem', 'examDetailItem','examType', 'classType', 'examTime')
     def company_show(self):
       return self.company.company_name
     company_show.short_description = '分公司'
