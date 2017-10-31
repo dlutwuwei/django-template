@@ -4,8 +4,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
-
-
 class School(models.Model):
     school_name = models.CharField('分校名称', max_length=200, unique=True)
     school_master = models.CharField('分校负责人', max_length=200, null=True, blank=True)
@@ -35,17 +33,19 @@ class Company(models.Model):
       verbose_name = '分公司设置'
       verbose_name_plural = '分公司设置'
 
-
-class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Branch(models.Model):
     company = models.ForeignKey(
-        Company,
-        on_delete=models.CASCADE,
-        verbose_name="分公司",
+      Company,
+      verbose_name='所属公司',
+      on_delete=models.CASCADE
     )
+    branch_name = models.CharField('分部名称', max_length=200, unique=True)
+    branch_code = models.CharField('分部代码', max_length=6, blank=True)
+    class Meta:
+      verbose_name = '分部设置'
+      verbose_name_plural = '分部设置'
     def __str__(self):
-      return self.user.username
-
+      return self.branch_name
 
 
 class ExamItem(models.Model):

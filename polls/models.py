@@ -5,9 +5,10 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from company.models import Company, ExamDetailItem, ExamItem, ExamType, ClassType
+from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, ClassType
 
 from django.utils.dates import MONTHS
+from smart_selects.db_fields import ChainedForeignKey
 
 # Create your models here.
 class Question(models.Model):
@@ -57,8 +58,28 @@ class EnlistForcast(models.Model):
     # month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
     year = models.IntegerField('年份', default=2018)
     company = models.ForeignKey(Company, verbose_name="分公司")
+    branch = ChainedForeignKey(
+      Branch,
+      chained_field='company',
+      chained_model_field='company',
+      show_all=False,
+      auto_choose=True,
+      sort=True,
+      on_delete=models.CASCADE,
+      verbose_name='所属分部'
+    )
     examItem = models.ForeignKey(ExamItem, verbose_name ='考试项目', max_length = 20, default=1)
-    examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
+    # examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
+    examDetailItem = ChainedForeignKey(
+      ExamDetailItem,
+      chained_field='examItem',
+      chained_model_field="item",
+      show_all=False,
+      auto_choose=True,
+      sort=True,
+      on_delete=models.CASCADE,
+      verbose_name="所属项目",
+    )
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
     examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)

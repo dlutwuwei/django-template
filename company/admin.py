@@ -3,23 +3,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Employee, Company, School, ExamDetailItem, ExamItem, ExamType, ClassType
-# from .forms import EmployeeForm
-
-
-# class EmployeeInline(admin.StackedInline):
-#     model = Employee
-#     can_delete = False
-#     verbose_name = 'user'
-#     verbose_name_plural = '公司信息'
-
-# # Define a new User admin
-# class UserAdmin(BaseUserAdmin):
-#     inlines = (EmployeeInline,)
-#     list_display = ('username', 'email', 'last_name', 'first_name', 'is_staff', 'get_department')
-#     def get_department(self, instance):
-#         return instance.employee.company
-#     get_department.short_description = '分公司'
+from .models import Company, School, Branch, ExamDetailItem, ExamItem, ExamType, ClassType
 
 class CompanyInline(admin.StackedInline):
     model = Company
@@ -27,14 +11,22 @@ class CompanyInline(admin.StackedInline):
     verbose_name = '分公司'
     verbose_name_plural = '分公司信息'
 
+class BranchInline(admin.StackedInline):
+    model = Branch
+    extra = 1
+    verbose_name = '分部'
+    verbose_name_plural = '分部信息'
 
 class SchoolAdmin(admin.ModelAdmin):
     inlines = (CompanyInline,)
     list_display = ('school_name', 'school_master')
 
-
 class CompanyAdmin(admin.ModelAdmin):
+    inlines = (BranchInline,)
     list_display= ('company_name', 'company_code', 'user')
+
+class BranchAdmin(admin.ModelAdmin):
+    list_display= ('branch_name', 'branch_code', 'company')
 
 class ExamDetailItemInline(admin.StackedInline):
     model = ExamDetailItem
@@ -64,4 +56,6 @@ admin.site.register(ExamType, ExamTypeAdmin)
 admin.site.register(ExamDetailItem, ExamDetailItemAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Company, CompanyAdmin)
+admin.site.register(Branch, BranchAdmin)
+
 admin.AdminSite.site_header = 'Django Test'

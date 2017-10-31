@@ -3,13 +3,11 @@ import unicodecsv as csv
 from django.contrib import admin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
 from django.contrib.admin.models import LogEntry
 from django import forms
-from itertools import chain
+from ajax_select.admin import AjaxSelectAdmin
 
-from company.models import Employee, Company
+from company.models import Company
 
 from .models import Question, Choice, Profit, Revenue, Collection, EnlistForcast, CostAdjust
 
@@ -37,30 +35,7 @@ def download_csv(modeladmin, request, queryset):
 download_csv.short_description = '导出excel数据'
 
 
-class ChoiceInline(admin.TabularInline):
-    model = Choice
-    extra = 3
-
-class QuestionAdmin(admin.ModelAdmin):
-    fieldsets = [
-        (None,               {'fields': ['question_text']}),
-        ('Date information', {'fields': ['pub_date'], 'classes': ['collapse']}),
-    ]
-    inlines = [ChoiceInline]
-    list_display = ('question_text', 'pub_date', 'was_published_recently')
-    list_filter = (
-        ('question_text'),
-        # for related fields
-        #('id', RelatedDropdownFilter)
-    )
-    search_fields = ['question_text']
-    actions = [download_csv]
-
-class ChoiceAdmin(admin.ModelAdmin):
-    fields = ('choice_text', 'votes')
-    list_display = ('choice_text', 'votes')
-    actions = [download_csv]
-
+@admin.register(Profit)
 class ProfitAdmin(admin.ModelAdmin):
     fieldsets = [
         ('主营业务收入', {'fields': ['gongwuyuan', 'shiyedanwei', 'teacher']}),
@@ -82,27 +57,12 @@ class ProfitAdmin(admin.ModelAdmin):
         # 此处user为当前model的related object的related object， 正常的外键只要filter(user=request.user)
         return qs.filter(province=request.user)
 
-class EmployeeInline(admin.StackedInline):
-    model = Employee
-    can_delete = False
-    verbose_name = 'user'
-    verbose_name_plural = '公司信息'
-
-class EnlistForm(forms.ModelForm):
-    pass
-    # company为外键，是多对一的关系, 隐藏字段，不可修改
-    # company = forms.ModelChoiceField(
-    #     queryset = Company.objects.all(),
-    #     widget = forms.HiddenInput(),
-    # )
-
+@admin.register(EnlistForcast)
 class EnlistForcastAdmin(admin.ModelAdmin):
-    form = EnlistForm
     actions = [download_csv]
     readonly_fields=('year',)
-    list_filter =('company','company__school', 'year')
-    list_display = ('company', 'examItem', 'examDetailItem', 'examType', 'classType',
-        'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
+    list_filter =('branch', 'company','company__school', 'year')
+    list_display = ('company', 'branch', 'examItem', 'examDetailItem', 'examType', 'classType', 'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
     # 初始化填表信息
     def get_changeform_initial_data(self, request):
         companies = Company.objects.filter(user__id=request.user.id)
@@ -123,7 +83,6 @@ class EnlistForcastAdmin(admin.ModelAdmin):
             return q, x
     # 过滤下拉条菜单
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        print db_field.name
         if db_field.name == 'company':
             kwargs['queryset'] = Company.objects.filter(user=request.user)
         return super(EnlistForcastAdmin, self).formfield_for_foreignkey(db_field, request=None, **kwargs)
@@ -134,9 +93,6 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         return instance.studentConsumption * instance.studentCount
     get_revenue.short_description = '预计学费收入(元)'
 
-admin.site.register(Profit, ProfitAdmin)
 admin.site.register(Collection)
-admin.site.register(EnlistForcast, EnlistForcastAdmin)
 admin.site.register(CostAdjust)
-admin.site.register(Question, QuestionAdmin)
 admin.site.register(LogEntry)

@@ -18,4 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^', admin.site.urls),
+    url(r'^chaining/', include('smart_selects.urls')),
 ]
