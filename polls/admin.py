@@ -65,7 +65,7 @@ class EnlistForcastAdmin(admin.ModelAdmin):
     list_display = ('company', 'branch', 'examItem', 'examDetailItem', 'examType', 'classType', 'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
     # 初始化填表信息
     def get_changeform_initial_data(self, request):
-        companies = Company.objects.filter(user__id=request.user.id)
+        companies = Company.objects.filter(user__id=request.user.id).only('id')
         if(companies):
             return {'company': companies[0].id}
     # 过滤筛选后的列表
@@ -74,7 +74,7 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return qs, x
         else:
-            companies = Company.objects.filter(user=request.user)
+            companies = Company.objects.filter(user=request.user).only('id')
             q = qs.filter(company__id = companies[0].id)
             for index, co in enumerate(companies):
                 if(index == 0):

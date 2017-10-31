@@ -83,7 +83,7 @@ class EnlistForcast(models.Model):
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
     examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)
-    studentConsumption = models.IntegerField('预计学生消费', default=0)
+    studentConsumption = models.FloatField('预计学生消费', default=0)
     studentCount = models.IntegerField('预计招收人数', default=0)
     class Meta:
       verbose_name = "考情及报名收入预测"
