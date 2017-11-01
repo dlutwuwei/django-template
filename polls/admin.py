@@ -6,10 +6,10 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.admin.models import LogEntry
 from django import forms
 
-from company.models import Company
+from company.models import Company, IncomeConversion
 from guardian.shortcuts import assign_perm
 from django.utils.dates import MONTHS
-from .models import Profit, Revenue, Collection, EnlistForcast, CostAdjust
+from .models import Profit, Revenue, EnlistForcast, CostAdjust
 
 month_items = MONTHS.items()
 
@@ -38,7 +38,6 @@ class BaseAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         # 对象实例需要先存储，再加权限
         super(BaseAdmin, self).save_model(request, obj, form, change)
-        print '------', obj._meta.permissions[0][0]
         perm = obj._meta.permissions[0][0]
         assign_perm(perm, request.user, obj)
     # 过滤筛选后的列表
@@ -48,7 +47,7 @@ class BaseAdmin(admin.ModelAdmin):
         # 管理员默认拥有所有权限
         for obj in qs:
             perm = obj._meta.permissions[0][0]
-            print perm, request.user.has_perm(perm, obj)
+            # print perm, request.user.has_perm(perm, obj)
             if(request.user.has_perm(perm, obj)):
                 ids.append(obj.id)
         return qs.filter(id__in=ids), use_restrict
@@ -76,12 +75,33 @@ class ProfitAdmin(admin.ModelAdmin):
         # 此处user为当前model的related object的related object， 正常的外键只要filter(user=request.user)
         return qs.filter(province=request.user)
 
+class EnlistForm(forms.ModelForm):
+    conversion = forms.ModelChoiceField(
+        queryset=IncomeConversion.objects.all(),
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
 @admin.register(EnlistForcast)
 class EnlistForcastAdmin(BaseAdmin):
+    form = EnlistForm
     actions = [download_csv]
     readonly_fields=('year',)
     list_filter =('branch', 'company','company__school', 'year')
-    list_display = ('company', 'branch', 'examItem', 'examDetailItem', 'examType', 'classType', 'examTime', 'studentConsumption', 'studentCount', 'get_revenue')
+    list_display = (
+        'company',
+        'branch',
+        'examItem',
+        'examDetailItem',
+        'examType',
+        'classType',
+        'examTime',
+        'studentConsumption',
+        'studentCount',
+        'get_revenue',
+        'get_conversion',
+        'get_income'
+    )
     # 初始化填表信息
     def get_changeform_initial_data(self, request):
         companies = Company.objects.filter(user__id=request.user.id).only('id')
@@ -92,13 +112,40 @@ class EnlistForcastAdmin(BaseAdmin):
         if db_field.name == 'company':
             kwargs['queryset'] = Company.objects.filter(user=request.user)
         return super(EnlistForcastAdmin, self).formfield_for_foreignkey(db_field, request=None, **kwargs)
-    # def get_month(self, instance):
-    #     return month_items[int(instance.month)-1][1]
-    # get_month.short_description = '月份'
     def get_revenue(self, instance):
         return instance.studentConsumption * instance.studentCount
-    get_revenue.short_description = '预计学费收入(元)'
+    get_revenue.short_description = '预计学费(元)'
+    def get_conversion(self,instance):
+        if instance.conversion:
+            return str(instance.conversion) + '%'
+        else:
+            return '-'
+    get_conversion.short_description = '转化率'
+    def get_income(self, instance):
+        if(instance.conversion):
+            return self.get_revenue(instance) * float(instance.conversion.ratio) / 100
+        else:
+            return '0.0'
+    get_income.short_description = '预计确认收入(元)'
+    # 保存时，查找转化率
+    def save_model(self, request, obj, form, change):
+        # print '-------', obj.conversion, obj.examItem, obj.examDetailItem, obj.examType, obj.classType
+        try:
+            obj.conversion = IncomeConversion.objects.all().get(
+                company= obj.company,
+                examItem = obj.examItem,
+                examDetailItem = obj.examDetailItem,
+                examType = obj.examType,
+                classType = obj.classType,
+            )
+        except Exception:
+            pass
 
-admin.site.register(Collection)
+        # print '=======', obj.conversion
+        # 对象实例需要先存储，再加权限
+        super(EnlistForcastAdmin, self).save_model(request, obj, form, change)
+
+
+
 admin.site.register(CostAdjust)
 admin.site.register(LogEntry)

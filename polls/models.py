@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, ClassType, ProductType
+from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, ClassType, ProductType, IncomeConversion
 
 from django.utils.dates import MONTHS
 from smart_selects.db_fields import ChainedForeignKey
@@ -42,7 +42,6 @@ class Profit(models.Model):
       verbose_name = "利润"
       verbose_name_plural = "利润报表"
 
-
 # 考情及报名收入预测
 class EnlistForcast(BaseModelMixin):
     # month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
@@ -61,9 +60,16 @@ class EnlistForcast(BaseModelMixin):
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
     examTime = models.IntegerField('预计招考时间', choices=MONTHS.items(), default=1)
-    studentConsumption = models.IntegerField('预计学生消费', default=0)
+    studentConsumption = models.FloatField('预计学生消费', default=0)
     studentCount = models.IntegerField('预计招收人数', default=0)
-    studyDuration = models.IntegerField('预计总学时', default=0)
+    conversion = models.ForeignKey(
+      IncomeConversion,
+      verbose_name='转化率',
+      max_length = 20,
+      null=True,
+      blank=True,
+      default=None
+    )
     class Meta:
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
