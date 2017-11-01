@@ -12,7 +12,7 @@ class School(models.Model):
       return self.school_name
     class Meta:
       verbose_name = '分校设置'
-      verbose_name_plural = "分校设置"
+      verbose_name_plural = "1. 分校设置"
 
 class Company(models.Model):
     school = models.ForeignKey(
@@ -32,7 +32,7 @@ class Company(models.Model):
       return self.company_name
     class Meta:
       verbose_name = '分公司设置'
-      verbose_name_plural = '分公司设置'
+      verbose_name_plural = '2. 分公司设置'
 
 class Branch(models.Model):
     company = models.ForeignKey(
@@ -44,7 +44,7 @@ class Branch(models.Model):
     branch_code = models.CharField('分部代码', max_length=6, unique=True)
     class Meta:
       verbose_name = '分部设置'
-      verbose_name_plural = '分部设置'
+      verbose_name_plural = '3. 分部设置'
     def __str__(self):
       return self.branch_name
 
@@ -53,7 +53,7 @@ class ExamItem(models.Model):
     item_name = models.CharField('考试项目', max_length=100, unique=True)
     class Meta:
       verbose_name='考试项目'
-      verbose_name_plural = '考试项目设置'
+      verbose_name_plural = '4 .考试项目设置'
     def __str__(self):
       return self.item_name
 
@@ -66,7 +66,7 @@ class ExamDetailItem(models.Model):
     detail_name = models.CharField('考试明细项目', max_length=100, unique=True)
     class Meta:
       verbose_name='考试明细项目'
-      verbose_name_plural = '考试明细项目设置'
+      verbose_name_plural = '5. 考试明细项目设置'
     def __str__(self):
       return self.detail_name
 
@@ -74,7 +74,7 @@ class ExamType(models.Model):
     type_name = models.CharField('考试类型', max_length=100, unique=True)
     class Meta:
       verbose_name='考试类型'
-      verbose_name_plural = '考试类型设置'
+      verbose_name_plural = '6. 考试类型设置'
     def __str__(self):
       return self.type_name
 
@@ -82,7 +82,7 @@ class ClassType(models.Model):
     class_name = models.CharField('班型', max_length=100, unique=True)
     class Meta:
       verbose_name='班型'
-      verbose_name_plural = '班型设置'
+      verbose_name_plural = '7 .班型设置'
     def __str__(self):
       return self.class_name
 
@@ -90,7 +90,7 @@ class ProductType(models.Model):
     product_name = models.CharField('产品类型', max_length=100, unique=True)
     class Meta:
       verbose_name='产品类型'
-      verbose_name_plural='产品类型设置'
+      verbose_name_plural='8. 产品类型设置'
     def __str__(self):
       return self.product_name
 
@@ -113,6 +113,7 @@ class IncomeConversion(models.Model):
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
     class Meta:
       verbose_name='收入转化率'
-      verbose_name_plural='收入转化率设置'
+      verbose_name_plural='9. 收入转化率设置'
+      unique_together = ('year','company', 'examItem', 'examDetailItem','examType', 'classType',)
     def __str__(self):
       return str(self.ratio)
