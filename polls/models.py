@@ -10,31 +10,21 @@ from company.models import Branch, Company, ExamDetailItem, ExamItem, ExamType, 
 from django.utils.dates import MONTHS
 from smart_selects.db_fields import ChainedForeignKey
 
-# Create your models here.
-class Question(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
-    def __str__(self):
-      return self.question_text
-    def was_published_recently(self):
-      now = timezone.now()
-      return now - datetime.timedelta(days=1) <= self.pub_date <= now
-    was_published_recently.admin_order_field = 'pub_date'
-    was_published_recently.boolean = True
-    was_published_recently.short_description = 'Published recently?'
-    class Meta:
-      verbose_name = "问题报表"
-      verbose_name_plural = "问题报表"
-
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
-    def __str__(self):
-      return self.choice_text
-    class Meta:
-      verbose_name = "选项"
-      verbose_name_plural = "选项报表"
+class BaseModelMixin(models.Model,):
+  year = models.IntegerField('年份', default=2018)
+  company = models.ForeignKey(Company, verbose_name="分公司")
+  branch = ChainedForeignKey(
+    Branch,
+    chained_field='company',
+    chained_model_field='company',
+    show_all=False,
+    auto_choose=True,
+    sort=True,
+    on_delete=models.CASCADE,
+    verbose_name='所属分部'
+  )
+  class Meta:
+       abstract = True
 
 # 利润表
 class Profit(models.Model):
@@ -54,23 +44,10 @@ class Profit(models.Model):
 
 
 # 考情及报名收入预测
-class EnlistForcast(models.Model):
+class EnlistForcast(BaseModelMixin):
     # month = models.IntegerField('月份', max_length = 20, choices=MONTHS.items(), default=1)
-    year = models.IntegerField('年份', default=2018)
-    company = models.ForeignKey(Company, verbose_name="分公司")
-    branch = ChainedForeignKey(
-      Branch,
-      chained_field='company',
-      chained_model_field='company',
-      show_all=False,
-      auto_choose=True,
-      sort=True,
-      on_delete=models.CASCADE,
-      verbose_name='所属分部'
-    )
     examItem = models.ForeignKey(ExamItem, verbose_name ='考试项目', max_length = 20, default=1)
     productType = models.ForeignKey(ProductType, verbose_name='产品类型', max_length = 20, default=1)
-    # examDetailItem = models.ForeignKey(ExamDetailItem, verbose_name = '考试明细项目',max_length = 20, default=1)
     examDetailItem = ChainedForeignKey(
       ExamDetailItem,
       chained_field='examItem',
@@ -79,7 +56,7 @@ class EnlistForcast(models.Model):
       auto_choose=True,
       sort=True,
       on_delete=models.CASCADE,
-      verbose_name="所属项目",
+      verbose_name="考试明细项目",
     )
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
     classType = models.ForeignKey(ClassType, verbose_name = '班型', max_length = 20, default=1)
@@ -91,6 +68,9 @@ class EnlistForcast(models.Model):
       verbose_name = "考情及报名收入预测"
       verbose_name_plural = "考情及报名收入预测报表"
       unique_together = ('year','company','branch', 'examItem', 'examDetailItem','examType', 'classType', 'examTime', 'productType')
+      permissions = (
+          ('view_enlist', 'Can view enlist'),
+      )
     def company_show(self):
       return self.company.company_name
     company_show.short_description = '分公司'

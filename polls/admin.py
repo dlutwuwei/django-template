@@ -7,10 +7,10 @@ from django.contrib.admin.models import LogEntry
 from django import forms
 
 from company.models import Company
-
-from .models import Question, Choice, Profit, Revenue, Collection, EnlistForcast, CostAdjust
-
+from guardian.shortcuts import assign_perm
 from django.utils.dates import MONTHS
+from .models import Profit, Revenue, Collection, EnlistForcast, CostAdjust
+
 month_items = MONTHS.items()
 
 def download_csv(modeladmin, request, queryset):
@@ -32,6 +32,26 @@ def download_csv(modeladmin, request, queryset):
     return response
 
 download_csv.short_description = '导出excel数据'
+
+class BaseAdmin(admin.ModelAdmin):
+    # 保存实例数据库时加上权限
+    def save_model(self, request, obj, form, change):
+        # 对象实例需要先存储，再加权限
+        super(BaseAdmin, self).save_model(request, obj, form, change)
+        print '------', obj._meta.permissions[0][0]
+        perm = obj._meta.permissions[0][0]
+        assign_perm(perm, request.user, obj)
+    # 过滤筛选后的列表
+    def get_search_results(self, request, queryset, search_term):
+        qs, use_restrict = super(BaseAdmin, self).get_search_results(request, queryset, search_term)
+        ids = []
+        # 管理员默认拥有所有权限
+        for obj in qs:
+            perm = obj._meta.permissions[0][0]
+            print perm, request.user.has_perm(perm, obj)
+            if(request.user.has_perm(perm, obj)):
+                ids.append(obj.id)
+        return qs.filter(id__in=ids), use_restrict
 
 
 @admin.register(Profit)
@@ -57,7 +77,7 @@ class ProfitAdmin(admin.ModelAdmin):
         return qs.filter(province=request.user)
 
 @admin.register(EnlistForcast)
-class EnlistForcastAdmin(admin.ModelAdmin):
+class EnlistForcastAdmin(BaseAdmin):
     actions = [download_csv]
     readonly_fields=('year',)
     list_filter =('branch', 'company','company__school', 'year')
@@ -67,19 +87,6 @@ class EnlistForcastAdmin(admin.ModelAdmin):
         companies = Company.objects.filter(user__id=request.user.id).only('id')
         if(companies):
             return {'company': companies[0].id}
-    # 过滤筛选后的列表
-    def get_search_results(self, request, queryset, search_term):
-        qs, x = super(EnlistForcastAdmin, self).get_search_results(request, queryset, search_term)
-        if request.user.is_superuser:
-            return qs, x
-        else:
-            companies = Company.objects.filter(user=request.user).only('id')
-            q = qs.filter(company__id = companies[0].id)
-            for index, co in enumerate(companies):
-                if(index == 0):
-                    continue
-                q = q | qs.filter(company__id = co.id)
-            return q, x
     # 过滤下拉条菜单
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'company':
@@ -91,7 +98,6 @@ class EnlistForcastAdmin(admin.ModelAdmin):
     def get_revenue(self, instance):
         return instance.studentConsumption * instance.studentCount
     get_revenue.short_description = '预计学费收入(元)'
-
 
 admin.site.register(Collection)
 admin.site.register(CostAdjust)
