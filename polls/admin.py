@@ -95,6 +95,7 @@ class EnlistForcastAdmin(BaseAdmin):
         'examDetailItem',
         'examType',
         'classType',
+        'productType',
         'examTime',
         'studentConsumption',
         'studentCount',
