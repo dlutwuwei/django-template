@@ -20,7 +20,8 @@ class BaseModelMixin(models.Model,):
     show_all=False,
     auto_choose=True,
     sort=True,
-    on_delete=models.CASCADE,
+    null=True,
+    on_delete=models.SET_NULL,
     verbose_name='所属分部'
   )
   class Meta:
@@ -54,7 +55,8 @@ class EnlistForcast(BaseModelMixin):
       show_all=False,
       auto_choose=True,
       sort=True,
-      on_delete=models.CASCADE,
+      null=True,
+      on_delete=models.SET_NULL,
       verbose_name="考试明细项目",
     )
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)

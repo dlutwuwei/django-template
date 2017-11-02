@@ -17,14 +17,16 @@ class School(models.Model):
 class Company(models.Model):
     school = models.ForeignKey(
         School,
-        on_delete=models.CASCADE,
+        null=True,
+        on_delete=models.SET_NULL,
         verbose_name="所属分校",
         unique=False
     )
     user = models.ForeignKey(
       User,
       verbose_name="填报人",
-      on_delete=models.CASCADE
+      null=True,
+      on_delete=models.SET_NULL
     )
     company_name = models.CharField('分公司名称', max_length=200, unique=True)
     company_code = models.CharField('分公司代码', max_length=6, unique=True)
@@ -38,7 +40,8 @@ class Branch(models.Model):
     company = models.ForeignKey(
       Company,
       verbose_name='所属公司',
-      on_delete=models.CASCADE
+      null=True,
+      on_delete=models.SET_NULL
     )
     branch_name = models.CharField('分部名称', max_length=200, unique=True)
     branch_code = models.CharField('分部代码', max_length=6, unique=True)
@@ -60,7 +63,8 @@ class ExamItem(models.Model):
 class ExamDetailItem(models.Model):
     item = models.ForeignKey(
       ExamItem,
-      on_delete=models.CASCADE,
+      null=True,
+      on_delete=models.SET_NULL,
       verbose_name="所属项目",
     )
     detail_name = models.CharField('考试明细项目', max_length=100, unique=True)
@@ -106,7 +110,8 @@ class IncomeConversion(models.Model):
       show_all=False,
       auto_choose=True,
       sort=True,
-      on_delete=models.CASCADE,
+      null=True,
+      on_delete=models.SET_NULL,
       verbose_name="所属项目",
     )
     examType = models.ForeignKey(ExamType, verbose_name = '考试类型',max_length = 20, default=1)
